@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BadgeTemplate, BadgeFieldConfig } from '../types';
-import { Settings, Image as ImageIcon, Move, Type, Palette, Eye, EyeOff, RotateCcw, PenTool, ChevronUp, ChevronDown, Plus, Minus } from 'lucide-react';
+import { Settings, Image as ImageIcon, Move, Type, Palette, Eye, EyeOff, RotateCcw, PenTool, ChevronUp, ChevronDown, Plus, Minus, Download, Upload } from 'lucide-react';
 import BadgePreview from './BadgePreview';
 import { DEFAULT_TEMPLATE } from '../db';
 import SignatureCanvas from 'react-signature-canvas';
@@ -31,6 +31,35 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
         onChange({ ...template, backgroundImage: event.target?.result as string });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleExport = () => {
+    const dataStr = JSON.stringify(template, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `badge-template-${template.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importedTemplate = JSON.parse(event.target?.result as string);
+          // Preserve the ID of the current template
+          onChange({ ...importedTemplate, id: template.id });
+        } catch (error) {
+          alert('Erreur lors de l\'importation du modèle. Vérifiez le format du fichier.');
+        }
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -592,7 +621,31 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
       </div>
 
       {/* Controls Area */}
-      <div className="w-full lg:w-80 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="w-full lg:w-80 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+        {/* Designer Toolbar */}
+        <div className="bg-indigo-600 p-3 flex items-center justify-between text-white">
+          <div className="flex items-center gap-2">
+            <Settings size={14} className="animate-spin-slow" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Concepteur Graphique</span>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleExport}
+              className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+              title="Exporter le modèle (.json)"
+            >
+              <Download size={14} />
+            </button>
+            <label 
+              className="p-1.5 hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+              title="Importer un modèle (.json)"
+            >
+              <Upload size={14} />
+              <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+            </label>
+          </div>
+        </div>
+
         <div className="flex border-b border-gray-100 overflow-x-auto no-scrollbar bg-gray-50/50">
           <button 
             onClick={() => setActiveTab('layout')}
@@ -632,7 +685,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
           </button>
         </div>
 
-        <div className="max-h-[600px] overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="p-4 border-b border-gray-100 bg-gray-50/30 flex justify-between items-center">
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Édition Rapide</span>
             <button 
@@ -648,11 +701,6 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
           </div>
           {activeTab === 'layout' && template.fields.nom && (
             <>
-              <FieldControl name="nom" label="Nom Complet" config={template.fields.nom} />
-              <FieldControl name="emploi" label="Emploi / Fonction" config={template.fields.emploi} />
-              <FieldControl name="service" label="Service" config={template.fields.service} />
-              <FieldControl name="matricule" label="Matricule" config={template.fields.matricule} />
-              
               {template.fields.photo && (
                 <div 
                   className={`p-4 border-b border-gray-100 transition-colors ${hoveredField === 'photo' ? 'bg-indigo-50/30' : ''}`}
@@ -721,6 +769,11 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                   <CoordinateInputs name="photo" config={template.fields.photo} />
                 </div>
               )}
+
+              <FieldControl name="matricule" label="Matricule" config={template.fields.matricule} />
+              <FieldControl name="nom" label="Nom Complet" config={template.fields.nom} />
+              <FieldControl name="service" label="Service" config={template.fields.service} />
+              <FieldControl name="emploi" label="Emploi / Fonction" config={template.fields.emploi} />
 
               {template.fields.qrCode && (
                 <div 
