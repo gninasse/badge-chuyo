@@ -1,0 +1,5 @@
+{
+  "name": "BadgeMaster PWA",
+  "description": "Professional agent management and badge generation system with offline support.",
+  "requestFramePermissions": ["camera"]
+}
