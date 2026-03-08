@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BadgeTemplate, BadgeFieldConfig } from '../types';
-import { Settings, Image as ImageIcon, Move, Type, Palette, Eye, EyeOff, RotateCcw, PenTool } from 'lucide-react';
+import { Settings, Image as ImageIcon, Move, Type, Palette, Eye, EyeOff, RotateCcw, PenTool, ChevronUp, ChevronDown, Plus, Minus } from 'lucide-react';
 import BadgePreview from './BadgePreview';
 import { DEFAULT_TEMPLATE } from '../db';
 import SignatureCanvas from 'react-signature-canvas';
@@ -79,7 +79,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
     <div className="space-y-3 mt-3 pt-3 border-t border-gray-50">
       <div className="flex items-center justify-between">
         <label className="text-[10px] uppercase font-bold text-gray-400">Position X</label>
-        <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.x}px</span>
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => handleFieldChange(name, { x: Math.max(0, config.x - 1) })}
+            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+          >
+            <Minus size={12} />
+          </button>
+          <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.x}px</span>
+          <button 
+            onClick={() => handleFieldChange(name, { x: Math.min(208, config.x + 1) })}
+            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+          >
+            <Plus size={12} />
+          </button>
+        </div>
       </div>
       <input 
         type="range" 
@@ -92,7 +106,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
       
       <div className="flex items-center justify-between">
         <label className="text-[10px] uppercase font-bold text-gray-400">Position Y</label>
-        <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.y}px</span>
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => handleFieldChange(name, { y: Math.max(0, config.y - 1) })}
+            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+          >
+            <Minus size={12} />
+          </button>
+          <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.y}px</span>
+          <button 
+            onClick={() => handleFieldChange(name, { y: Math.min(321, config.y + 1) })}
+            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+          >
+            <Plus size={12} />
+          </button>
+        </div>
       </div>
       <input 
         type="range" 
@@ -131,7 +159,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="text-[10px] uppercase font-bold text-gray-400">Taille de police</label>
-            <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.fontSize}px</span>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => handleFieldChange(name, { fontSize: Math.max(6, config.fontSize - 1) })}
+                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+              >
+                <Minus size={12} />
+              </button>
+              <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.fontSize}px</span>
+              <button 
+                onClick={() => handleFieldChange(name, { fontSize: Math.min(32, config.fontSize + 1) })}
+                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+              >
+                <Plus size={12} />
+              </button>
+            </div>
           </div>
           <input 
             type="range" 
@@ -245,7 +287,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
           <div className="flex-1 space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-[10px] uppercase font-bold text-gray-400">Taille (px)</label>
-              <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.size}px</span>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => handleFieldChange(name, { size: Math.max(10, config.size - 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.size}px</span>
+                <button 
+                  onClick={() => handleFieldChange(name, { size: Math.min(100, config.size + 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
             </div>
             <input 
               type="range" 
@@ -276,8 +332,20 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
 
     const saveSignature = () => {
       if (sigPad.current) {
-        const dataUrl = sigPad.current.getTrimmedCanvas().toDataURL('image/png');
-        handleFieldChange(name, { image: dataUrl });
+        try {
+          // Some versions of react-signature-canvas might have issues with getTrimmedCanvas in certain environments
+          const canvas = sigPad.current.getTrimmedCanvas();
+          if (canvas) {
+            const dataUrl = canvas.toDataURL('image/png');
+            handleFieldChange(name, { image: dataUrl });
+          }
+        } catch (error) {
+          console.error('Signature trimming failed, falling back to raw canvas:', error);
+          const rawCanvas = sigPad.current.getCanvas();
+          if (rawCanvas) {
+            handleFieldChange(name, { image: rawCanvas.toDataURL('image/png') });
+          }
+        }
       }
     };
 
@@ -332,7 +400,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-[10px] uppercase font-bold text-gray-400">Largeur (px)</label>
-              <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.width}px</span>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => handleFieldChange(name, { width: Math.max(20, config.width - 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.width}px</span>
+                <button 
+                  onClick={() => handleFieldChange(name, { width: Math.min(200, config.width + 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
             </div>
             <input 
               type="range" 
@@ -346,7 +428,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-[10px] uppercase font-bold text-gray-400">Hauteur (px)</label>
-              <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.height}px</span>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => handleFieldChange(name, { height: Math.max(10, config.height - 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.height}px</span>
+                <button 
+                  onClick={() => handleFieldChange(name, { height: Math.min(150, config.height + 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
             </div>
             <input 
               type="range" 
@@ -382,7 +478,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="text-[10px] uppercase font-bold text-gray-400">Taille de police</label>
-            <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{config.fontSize}px</span>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => handleFieldChange(name, { fontSize: Math.max(6, config.fontSize - 1) })}
+                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+              >
+                <Minus size={12} />
+              </button>
+              <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.fontSize}px</span>
+              <button 
+                onClick={() => handleFieldChange(name, { fontSize: Math.min(32, config.fontSize + 1) })}
+                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+              >
+                <Plus size={12} />
+              </button>
+            </div>
           </div>
           <input 
             type="range" 
@@ -554,7 +664,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-[10px] uppercase font-bold text-gray-400">Largeur (px)</label>
-                        <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{template.fields.photo.width}px</span>
+                        <div className="flex items-center gap-1">
+                          <button 
+                            onClick={() => handleFieldChange('photo', { width: Math.max(50, template.fields.photo.width - 1) })}
+                            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{template.fields.photo.width}px</span>
+                          <button 
+                            onClick={() => handleFieldChange('photo', { width: Math.min(150, template.fields.photo.width + 1) })}
+                            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
                       </div>
                       <input 
                         type="range" 
@@ -568,7 +692,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-[10px] uppercase font-bold text-gray-400">Hauteur (px)</label>
-                        <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{template.fields.photo.height}px</span>
+                        <div className="flex items-center gap-1">
+                          <button 
+                            onClick={() => handleFieldChange('photo', { height: Math.max(50, template.fields.photo.height - 1) })}
+                            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{template.fields.photo.height}px</span>
+                          <button 
+                            onClick={() => handleFieldChange('photo', { height: Math.min(150, template.fields.photo.height + 1) })}
+                            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
                       </div>
                       <input 
                         type="range" 
@@ -602,7 +740,21 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="text-[10px] uppercase font-bold text-gray-400">Taille (px)</label>
-                      <span className="text-[10px] font-mono bg-gray-100 px-1 rounded">{template.fields.qrCode.size}px</span>
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => handleFieldChange('qrCode', { size: Math.max(20, template.fields.qrCode.size - 1) })}
+                          className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                        >
+                          <Minus size={12} />
+                        </button>
+                        <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{template.fields.qrCode.size}px</span>
+                        <button 
+                          onClick={() => handleFieldChange('qrCode', { size: Math.min(100, template.fields.qrCode.size + 1) })}
+                          className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
                     </div>
                     <input 
                       type="range" 

@@ -110,7 +110,7 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 value={formData.matricule}
                 onChange={(e) => setFormData({ ...formData, matricule: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                placeholder="Ex: AG-2024-001"
+                placeholder="Ex: 239 781 N"
               />
             </div>
             <div>
@@ -121,7 +121,7 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 value={formData.nom}
                 onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                placeholder="Prénom NOM"
+                placeholder="Ex: WANGRAWA W. Justine"
               />
             </div>
             <div>
@@ -132,7 +132,7 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 value={formData.service}
                 onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                placeholder="Ex: Direction Technique"
+                placeholder="Ex: MATERNITE"
               />
             </div>
             <div>
@@ -143,7 +143,7 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 value={formData.emploi}
                 onChange={(e) => setFormData({ ...formData, emploi: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                placeholder="Ex: Ingénieur Système"
+                placeholder="Ex: Infirmière Diplômée d'Etat"
               />
             </div>
           </div>
