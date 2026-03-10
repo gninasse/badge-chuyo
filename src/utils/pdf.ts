@@ -44,11 +44,12 @@ export async function generateBulkPDF(badgeElements: HTMLElement[], filename: st
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      const bW = 55;
-      const bH = 85;
-      const margin = 10;
-      const cols = Math.floor((pageWidth - margin) / (bW + 5));
-      const rows = Math.floor((pageHeight - margin) / (bH + 5));
+      const bW = 180; // Slightly smaller than 208 to fit 3 columns if possible or just better margins
+      const bH = 278; // Proportional to 321
+      const margin = 20;
+      const gap = 10;
+      const cols = Math.floor((pageWidth - margin * 2 + gap) / (bW + gap));
+      const rows = Math.floor((pageHeight - margin * 2 + gap) / (bH + gap));
       const perPage = cols * rows;
 
       if (i > 0 && i % perPage === 0) {
@@ -59,8 +60,8 @@ export async function generateBulkPDF(badgeElements: HTMLElement[], filename: st
       const col = pageIdx % cols;
       const row = Math.floor(pageIdx / cols);
 
-      const x = margin + col * (bW + 5);
-      const y = margin + row * (bH + 5);
+      const x = margin + col * (bW + gap);
+      const y = margin + row * (bH + gap);
 
       pdf.addImage(imgData, 'PNG', x, y, bW, bH);
     }

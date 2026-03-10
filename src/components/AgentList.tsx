@@ -9,7 +9,7 @@ interface AgentListProps {
   onEdit: (agent: Agent) => void;
   onDelete: (id: number) => void;
   onPrint: (agent: Agent) => void;
-  onExportBulk: (ids: number[]) => void;
+  onExportBulk: (ids: number[], mode: 'single' | 'grid') => void;
   template: BadgeTemplate;
 }
 
@@ -51,14 +51,24 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
           />
         </div>
         
-        <div className="flex gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
           {selectedAgents.length > 0 && (
-            <button 
-              onClick={() => onExportBulk(selectedAgents)}
-              className="flex-1 md:flex-none px-4 py-2 bg-indigo-50 text-indigo-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all border border-indigo-100"
-            >
-              <FileDown size={18} /> PDF Groupé ({selectedAgents.length})
-            </button>
+            <>
+              <button 
+                onClick={() => onExportBulk(selectedAgents, 'single')}
+                className="flex-1 md:flex-none px-4 py-2 bg-indigo-50 text-indigo-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all border border-indigo-100"
+                title="Un badge par page"
+              >
+                <FileDown size={18} /> PDF Individuel ({selectedAgents.length})
+              </button>
+              <button 
+                onClick={() => onExportBulk(selectedAgents, 'grid')}
+                className="flex-1 md:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-emerald-100 transition-all border border-emerald-100"
+                title="Plusieurs badges par page A4"
+              >
+                <Printer size={18} /> Format A4 ({selectedAgents.length})
+              </button>
+            </>
           )}
           <button 
             onClick={onAdd}

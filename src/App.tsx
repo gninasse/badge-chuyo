@@ -108,7 +108,7 @@ export default function App() {
     document.body.removeChild(container);
   };
 
-  const handleExportBulk = async (ids: number[]) => {
+  const handleExportBulk = async (ids: number[], mode: 'single' | 'grid' = 'single') => {
     setIsGeneratingPDF(true);
     try {
       const selectedAgents = agents.filter(a => ids.includes(a.id!));
@@ -120,7 +120,7 @@ export default function App() {
       }
 
       if (elements.length > 0) {
-        await generateBulkPDF(elements, 'Badges_Groupes', 'single');
+        await generateBulkPDF(elements, mode === 'single' ? 'Badges_Individuels' : 'Planche_A4', mode);
       }
     } finally {
       setIsGeneratingPDF(false);
