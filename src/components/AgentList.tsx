@@ -55,9 +55,9 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
           {selectedAgents.length > 0 && (
             <button 
               onClick={() => onExportBulk(selectedAgents)}
-              className="flex-1 md:flex-none px-4 py-2 bg-indigo-50 text-indigo-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all"
+              className="flex-1 md:flex-none px-4 py-2 bg-indigo-50 text-indigo-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all border border-indigo-100"
             >
-              <Printer size={18} /> Imprimer ({selectedAgents.length})
+              <FileDown size={18} /> PDF Groupé ({selectedAgents.length})
             </button>
           )}
           <button 

@@ -27,6 +27,7 @@ export default function App() {
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const agents = useLiveQuery(() => db.agents.toArray()) || [];
   const templates = useLiveQuery(() => db.templates.toArray()) || [];
@@ -108,16 +109,21 @@ export default function App() {
   };
 
   const handleExportBulk = async (ids: number[]) => {
-    const selectedAgents = agents.filter(a => ids.includes(a.id!));
-    const elements: HTMLElement[] = [];
-    
-    for (const agent of selectedAgents) {
-      const el = document.getElementById(`hidden-preview-${agent.id}`);
-      if (el) elements.push(el);
-    }
+    setIsGeneratingPDF(true);
+    try {
+      const selectedAgents = agents.filter(a => ids.includes(a.id!));
+      const elements: HTMLElement[] = [];
+      
+      for (const agent of selectedAgents) {
+        const el = document.getElementById(`hidden-preview-${agent.id}`);
+        if (el) elements.push(el);
+      }
 
-    if (elements.length > 0) {
-      await generateBulkPDF(elements, 'Badges_Groupes', 'single');
+      if (elements.length > 0) {
+        await generateBulkPDF(elements, 'Badges_Groupes', 'single');
+      }
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -332,6 +338,19 @@ export default function App() {
           </div>
         ))}
       </div>
+
+      {/* Loading Overlay for PDF Generation */}
+      {isGeneratingPDF && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="text-center">
+              <h3 className="font-black text-xl text-gray-900">Génération du PDF...</h3>
+              <p className="text-gray-500 text-sm">Veuillez patienter quelques instants.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
