@@ -37,10 +37,13 @@ export default function App() {
   const defaultTemplate = rawDefaultTemplate ? {
     ...DEFAULT_TEMPLATE,
     ...rawDefaultTemplate,
-    fields: {
-      ...DEFAULT_TEMPLATE.fields,
-      ...rawDefaultTemplate.fields
-    }
+    fields: Object.keys(DEFAULT_TEMPLATE.fields).reduce((acc, key) => ({
+      ...acc,
+      [key]: {
+        ...(DEFAULT_TEMPLATE.fields as any)[key],
+        ...(rawDefaultTemplate.fields as any)[key]
+      }
+    }), {} as any)
   } : null;
 
   useEffect(() => {

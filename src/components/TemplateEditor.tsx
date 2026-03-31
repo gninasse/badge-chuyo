@@ -162,6 +162,18 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
     </div>
   );
 
+  const FONT_FAMILIES = [
+    'Tahoma',
+    'Inter',
+    'Arial',
+    'Verdana',
+    'Times New Roman',
+    'Courier New',
+    'Georgia',
+    'Trebuchet MS',
+    'Impact'
+  ];
+
   const HeaderFieldControl = ({ name, label, config }: { name: string, label: string, config: BadgeFieldConfig & { text: string } }) => (
     <div 
       className={`p-4 border-b border-gray-100 last:border-0 transition-colors ${hoveredField === name ? 'bg-indigo-50/30' : ''}`}
@@ -185,33 +197,47 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
         placeholder="Texte de l'en-tête"
       />
       <div className="space-y-4">
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[10px] uppercase font-bold text-gray-400">Taille de police</label>
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={() => handleFieldChange(name, { fontSize: Math.max(6, config.fontSize - 1) })}
-                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
-              >
-                <Minus size={12} />
-              </button>
-              <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.fontSize}px</span>
-              <button 
-                onClick={() => handleFieldChange(name, { fontSize: Math.min(32, config.fontSize + 1) })}
-                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
-              >
-                <Plus size={12} />
-              </button>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[10px] uppercase font-bold text-gray-400">Taille</label>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => handleFieldChange(name, { fontSize: Math.max(6, config.fontSize - 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.fontSize}px</span>
+                <button 
+                  onClick={() => handleFieldChange(name, { fontSize: Math.min(32, config.fontSize + 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
             </div>
+            <input 
+              type="range" 
+              min="6" 
+              max="32" 
+              value={config.fontSize} 
+              onChange={(e) => handleFieldChange(name, { fontSize: parseInt(e.target.value) })}
+              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            />
           </div>
-          <input 
-            type="range" 
-            min="6" 
-            max="32" 
-            value={config.fontSize} 
-            onChange={(e) => handleFieldChange(name, { fontSize: parseInt(e.target.value) })}
-            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-          />
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Police</label>
+            <select 
+              value={config.fontFamily || 'Tahoma'} 
+              onChange={(e) => handleFieldChange(name, { fontFamily: e.target.value })}
+              className="w-full px-2 py-1.5 text-[10px] border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+            >
+              {FONT_FAMILIES.map(font => (
+                <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>
+              ))}
+            </select>
+          </div>
         </div>
         
         <div className="flex items-center justify-between gap-4">
@@ -504,33 +530,47 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
         </button>
       </div>
       <div className="space-y-4">
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[10px] uppercase font-bold text-gray-400">Taille de police</label>
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={() => handleFieldChange(name, { fontSize: Math.max(6, config.fontSize - 1) })}
-                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
-              >
-                <Minus size={12} />
-              </button>
-              <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.fontSize}px</span>
-              <button 
-                onClick={() => handleFieldChange(name, { fontSize: Math.min(32, config.fontSize + 1) })}
-                className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
-              >
-                <Plus size={12} />
-              </button>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[10px] uppercase font-bold text-gray-400">Taille</label>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => handleFieldChange(name, { fontSize: Math.max(6, config.fontSize - 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{config.fontSize}px</span>
+                <button 
+                  onClick={() => handleFieldChange(name, { fontSize: Math.min(32, config.fontSize + 1) })}
+                  className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
             </div>
+            <input 
+              type="range" 
+              min="6" 
+              max="32" 
+              value={config.fontSize} 
+              onChange={(e) => handleFieldChange(name, { fontSize: parseInt(e.target.value) })}
+              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            />
           </div>
-          <input 
-            type="range" 
-            min="6" 
-            max="32" 
-            value={config.fontSize} 
-            onChange={(e) => handleFieldChange(name, { fontSize: parseInt(e.target.value) })}
-            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-          />
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Police</label>
+            <select 
+              value={config.fontFamily || 'Tahoma'} 
+              onChange={(e) => handleFieldChange(name, { fontFamily: e.target.value })}
+              className="w-full px-2 py-1.5 text-[10px] border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+            >
+              {FONT_FAMILIES.map(font => (
+                <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>
+              ))}
+            </select>
+          </div>
         </div>
         
         <div className="flex items-center justify-between gap-4">

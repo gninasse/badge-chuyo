@@ -13,6 +13,7 @@ export interface BadgeFieldConfig {
   x: number;
   y: number;
   fontSize: number;
+  fontFamily?: string;
   color: string;
   align: 'left' | 'center' | 'right';
   isUppercase: boolean;
