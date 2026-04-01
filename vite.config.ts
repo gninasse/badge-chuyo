@@ -13,8 +13,8 @@ export default defineConfig(({mode}) => {
       VitePWA({
         registerType: 'autoUpdate',
         manifest: {
-          name: 'BadgeMaster Pro',
-          short_name: 'BadgeMaster',
+          name: 'Badge CHU-YO',
+          short_name: 'Badge CHU-YO',
           description: 'Professional Badge Management System',
           theme_color: '#ffffff',
           icons: [

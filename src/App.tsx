@@ -188,11 +188,11 @@ export default function App() {
     <div className={`min-h-screen bg-gray-50 flex flex-col ${darkMode ? 'dark' : ''}`}>
       {/* Navigation Sidebar (Desktop) / Bottom Bar (Mobile) */}
       <nav className="fixed bottom-0 left-0 w-full md:w-64 md:h-full bg-white border-t md:border-t-0 md:border-r border-gray-200 z-40 flex md:flex-col shadow-lg md:shadow-none">
-        <div className="hidden md:flex items-center gap-3 p-8 border-b border-gray-100">
+        <div className="hidden md:flex items-center gap-3 p-6 border-b border-gray-100">
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
             <ShieldCheck size={24} />
           </div>
-          <h1 className="font-black text-xl tracking-tight text-gray-900">BadgeMaster</h1>
+          <h1 className="font-black text-lg tracking-tight text-gray-900 whitespace-nowrap">Badge CHU-YO</h1>
         </div>
 
         <div className="flex-1 flex md:flex-col justify-around md:justify-start p-2 md:p-4 gap-1 md:gap-2">
@@ -317,7 +317,7 @@ export default function App() {
                     <h3 className="font-bold text-lg">À propos</h3>
                   </div>
                   <div className="space-y-4 text-sm text-gray-600">
-                    <p><strong>BadgeMaster Pro v1.0</strong></p>
+                    <p><strong>Badge CHU-YO v1.0</strong></p>
                     <p>Une solution complète et sécurisée pour la gestion institutionnelle des badges professionnels.</p>
                     <ul className="list-disc pl-5 space-y-2 text-xs text-gray-500">
                       <li>Fonctionnement 100% Hors-ligne</li>

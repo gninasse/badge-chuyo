@@ -1,5 +1,5 @@
 {
-  "name": "BadgeMaster PWA",
+  "name": "Badge CHU-YO",
   "description": "Professional agent management and badge generation system with offline support.",
   "requestFramePermissions": ["camera"]
 }
