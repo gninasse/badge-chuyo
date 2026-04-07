@@ -10,10 +10,11 @@ interface AgentListProps {
   onDelete: (id: number) => void;
   onPrint: (agent: Agent) => void;
   onExportBulk: (ids: number[], mode: 'single' | 'grid') => void;
+  onDeleteBulk: (ids: number[]) => void;
   template: BadgeTemplate;
 }
 
-const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, onPrint, onExportBulk, template }) => {
+const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, onPrint, onExportBulk, onDeleteBulk, template }) => {
   const [search, setSearch] = useState('');
   const [selectedAgents, setSelectedAgents] = useState<number[]>([]);
 
@@ -67,6 +68,16 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
                 title="Plusieurs badges par page A4"
               >
                 <Printer size={18} /> Format A4 ({selectedAgents.length})
+              </button>
+              <button 
+                onClick={() => {
+                  onDeleteBulk(selectedAgents);
+                  setSelectedAgents([]);
+                }}
+                className="flex-1 md:flex-none px-4 py-2 bg-red-50 text-red-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-all border border-red-100"
+                title="Supprimer la sélection"
+              >
+                <Trash2 size={18} /> Supprimer ({selectedAgents.length})
               </button>
             </>
           )}

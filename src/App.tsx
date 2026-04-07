@@ -83,6 +83,12 @@ export default function App() {
     }
   };
 
+  const handleDeleteBulk = async (ids: number[]) => {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer les ${ids.length} agents sélectionnés ?`)) {
+      await db.agents.bulkDelete(ids);
+    }
+  };
+
   const handleUpdateTemplate = async (template: BadgeTemplate) => {
     if (!template.id) return;
     await db.templates.update(template.id, template);
@@ -248,6 +254,7 @@ export default function App() {
                   onAdd={() => setIsAddingAgent(true)}
                   onEdit={setEditingAgent}
                   onDelete={handleDeleteAgent}
+                  onDeleteBulk={handleDeleteBulk}
                   onPrint={handlePrintAgent}
                   onExportBulk={handleExportBulk}
                 />
