@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Agent } from '../types';
-import { Camera, Upload, X, Check, RotateCcw } from 'lucide-react';
+import { Camera, Upload, X, Check, RotateCcw, Copy } from 'lucide-react';
 import { fileToBase64, optimizeImage } from '../utils/image';
 
 interface AgentFormProps {
@@ -22,6 +22,8 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
   const [isCropping, setIsCropping] = useState(false);
   const [rawImage, setRawImage] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [copied, setCopied] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -112,6 +114,20 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 placeholder="Ex: 239 781 N"
               />
+              <button 
+                type="button"
+                onClick={() => {
+                  const cleanMatricule = formData.matricule.replace(/\s+/g, '');
+                  navigator.clipboard.writeText(cleanMatricule);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className={`mt-1 flex items-center gap-1 text-[10px] font-bold transition-all ${copied ? 'text-green-600' : 'text-indigo-600 hover:text-indigo-800'}`}
+                title="Copier le matricule sans les espaces"
+              >
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+                <span className="underline">{copied ? 'Copié !' : 'Copier sans espaces'}</span>
+              </button>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nom Complet</label>
