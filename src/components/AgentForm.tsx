@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Cropper from 'react-easy-crop';
 import { Agent } from '../types';
-import { Camera, Upload, X, Check, RotateCcw, Copy } from 'lucide-react';
-import { fileToBase64, optimizeImage } from '../utils/image';
+import { Camera, Upload, X, Check, RotateCcw, Copy, ZoomIn, RotateCw } from 'lucide-react';
+import { fileToBase64, optimizeImage, getCroppedImg } from '../utils/image';
 
 interface AgentFormProps {
   agent?: Agent;
@@ -21,6 +22,10 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
 
   const [isCropping, setIsCropping] = useState(false);
   const [rawImage, setRawImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [copied, setCopied] = useState(false);
@@ -30,7 +35,13 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
       const base64 = await fileToBase64(acceptedFiles[0]);
       setRawImage(base64);
       setIsCropping(true);
+      setZoom(1);
+      setRotation(0);
     }
+  }, []);
+
+  const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -40,13 +51,15 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
   });
 
   const handleCrop = async () => {
-    if (rawImage) {
-      // For simplicity, we use the center crop from optimizeImage
-      // In a real app, we'd add a manual crop UI here
-      const cropped = await optimizeImage(rawImage, 400, 400); // High res for storage
-      setFormData({ ...formData, photo: cropped });
-      setIsCropping(false);
-      setRawImage(null);
+    if (rawImage && croppedAreaPixels) {
+      try {
+        const cropped = await getCroppedImg(rawImage, croppedAreaPixels, rotation);
+        setFormData({ ...formData, photo: cropped });
+        setIsCropping(false);
+        setRawImage(null);
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
@@ -71,7 +84,7 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
           {/* Photo Section */}
           <div className="flex flex-col items-center">
             <div className="relative group">
-              <div className="w-40 h-40 rounded-2xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center transition-all group-hover:border-indigo-400">
+              <div className="w-32 h-40 rounded-2xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center transition-all group-hover:border-indigo-400">
                 {formData.photo ? (
                   <img src={formData.photo} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
@@ -97,7 +110,7 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
               )}
             </div>
             <p className="mt-4 text-xs text-gray-500 text-center">
-              Format 1:1 (Passeport)<br />
+              Format 4:5 (Passeport)<br />
               Cliquez pour changer la photo
             </p>
           </div>
@@ -182,27 +195,80 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
         </div>
       </form>
 
-      {/* Simple Crop Modal */}
+      {/* Advanced Crop Modal */}
       {isCropping && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold mb-4">Aperçu de la photo</h3>
-            <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden mb-6">
-              <img src={rawImage!} alt="To crop" className="w-full h-full object-contain" />
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="bg-gray-900 p-4 flex items-center justify-between text-white">
+              <h3 className="font-bold">Ajuster la photo</h3>
+              <button onClick={() => { setIsCropping(false); setRawImage(null); }}>
+                <X size={24} />
+              </button>
             </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => { setIsCropping(false); setRawImage(null); }}
-                className="flex-1 py-3 text-gray-600 font-bold border border-gray-200 rounded-xl"
-              >
-                Annuler
-              </button>
-              <button 
-                onClick={handleCrop}
-                className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center gap-2"
-              >
-                <Check size={20} /> Valider le cadrage
-              </button>
+            
+            <div className="relative h-[400px] bg-gray-100">
+              <Cropper
+                image={rawImage!}
+                crop={crop}
+                zoom={zoom}
+                rotation={rotation}
+                aspect={4 / 5}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+                onRotationChange={setRotation}
+                cropShape="rect"
+                showGrid={true}
+              />
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <ZoomIn size={20} className="text-gray-400" />
+                  <input
+                    type="range"
+                    value={zoom}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    aria-labelledby="Zoom"
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                  <span className="text-xs font-bold text-gray-500 w-8">{zoom.toFixed(1)}x</span>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <RotateCw size={20} className="text-gray-400" />
+                  <input
+                    type="range"
+                    value={rotation}
+                    min={0}
+                    max={360}
+                    step={1}
+                    aria-labelledby="Rotation"
+                    onChange={(e) => setRotation(Number(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                  <span className="text-xs font-bold text-gray-500 w-8">{rotation}°</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => { setIsCropping(false); setRawImage(null); }}
+                  className="flex-1 py-3 text-gray-600 font-bold border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={handleCrop}
+                  className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
+                >
+                  <Check size={20} /> Appliquer
+                </button>
+              </div>
             </div>
           </div>
         </div>

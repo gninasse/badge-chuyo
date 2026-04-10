@@ -754,14 +754,20 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                         <label className="text-[10px] uppercase font-bold text-gray-400">Largeur (px)</label>
                         <div className="flex items-center gap-1">
                           <button 
-                            onClick={() => handleFieldChange('photo', { width: Math.max(50, template.fields.photo.width - 1) })}
+                            onClick={() => {
+                              const newWidth = Math.max(50, template.fields.photo.width - 1);
+                              handleFieldChange('photo', { width: newWidth, height: Math.round(newWidth * 1.25) });
+                            }}
                             className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
                           >
                             <Minus size={12} />
                           </button>
                           <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{template.fields.photo.width}px</span>
                           <button 
-                            onClick={() => handleFieldChange('photo', { width: Math.min(150, template.fields.photo.width + 1) })}
+                            onClick={() => {
+                              const newWidth = Math.min(150, template.fields.photo.width + 1);
+                              handleFieldChange('photo', { width: newWidth, height: Math.round(newWidth * 1.25) });
+                            }}
                             className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
                           >
                             <Plus size={12} />
@@ -773,37 +779,23 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                         min="50" 
                         max="150" 
                         value={template.fields.photo.width} 
-                        onChange={(e) => handleFieldChange('photo', { width: parseInt(e.target.value) })}
+                        onChange={(e) => {
+                          const newWidth = parseInt(e.target.value);
+                          handleFieldChange('photo', { width: newWidth, height: Math.round(newWidth * 1.25) });
+                        }}
                         className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                       />
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="text-[10px] uppercase font-bold text-gray-400">Hauteur (px)</label>
-                        <div className="flex items-center gap-1">
-                          <button 
-                            onClick={() => handleFieldChange('photo', { height: Math.max(50, template.fields.photo.height - 1) })}
-                            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded min-w-[32px] text-center">{template.fields.photo.height}px</span>
-                          <button 
-                            onClick={() => handleFieldChange('photo', { height: Math.min(150, template.fields.photo.height + 1) })}
-                            className="p-0.5 hover:bg-gray-100 rounded text-gray-400 hover:text-indigo-600 transition-colors"
-                          >
-                            <Plus size={12} />
-                          </button>
+                        <div className="flex items-center gap-1 text-gray-400 italic text-[9px]">
+                          Auto (Ratio 4:5)
                         </div>
                       </div>
-                      <input 
-                        type="range" 
-                        min="50" 
-                        max="150" 
-                        value={template.fields.photo.height} 
-                        onChange={(e) => handleFieldChange('photo', { height: parseInt(e.target.value) })}
-                        className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                      />
+                      <div className="w-full px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-mono text-gray-500">
+                        {template.fields.photo.height}px
+                      </div>
                     </div>
                   </div>
                   <CoordinateInputs name="photo" config={template.fields.photo} />

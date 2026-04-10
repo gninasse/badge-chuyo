@@ -28,7 +28,7 @@ export const DEFAULT_TEMPLATE: BadgeTemplate = {
     headerText1: { text: 'Ministère de la santé', x: 104, y: 35, fontSize: 10, fontFamily: 'Tahoma', color: '#000000', align: 'center', isUppercase: false, isBold: true, visible: true },
     headerText2: { text: 'Centre Hospitalier', x: 104, y: 50, fontSize: 10, fontFamily: 'Tahoma', color: '#000000', align: 'center', isUppercase: false, isBold: true, visible: true },
     headerText3: { text: 'Universitaire Yalgado OUEDRAOGO', x: 104, y: 65, fontSize: 10, fontFamily: 'Tahoma', color: '#000000', align: 'center', isUppercase: false, isBold: true, visible: true },
-    photo: { x: 54, y: 90, width: 100, height: 115 },
+    photo: { x: 54, y: 85, width: 100, height: 125 },
     nom: { x: 104, y: 235, fontSize: 14, fontFamily: 'Tahoma', color: '#000000', align: 'center', isUppercase: true, isBold: true, visible: true },
     emploi: { x: 104, y: 275, fontSize: 11, fontFamily: 'Tahoma', color: '#000000', align: 'center', isUppercase: false, isBold: true, visible: true },
     service: { x: 104, y: 255, fontSize: 13, fontFamily: 'Tahoma', color: '#0078d4', align: 'center', isUppercase: true, isBold: true, visible: true },
