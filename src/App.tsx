@@ -96,17 +96,26 @@ export default function App() {
 
   const handlePrintAgent = async (agent: Agent, side: 'recto' | 'verso' | 'both' = 'recto') => {
     setIsGeneratingPDF(true);
+    const now = new Date();
+    const dateStr = now.getFullYear() + 
+                    String(now.getMonth() + 1).padStart(2, '0') + 
+                    String(now.getDate()).padStart(2, '0') + "_" + 
+                    String(now.getHours()).padStart(2, '0') + 
+                    String(now.getMinutes()).padStart(2, '0') + 
+                    String(now.getSeconds()).padStart(2, '0');
+    const runId = `${dateStr}_${Math.floor(100 + Math.random() * 900)}`;
+
     try {
       if (side === 'recto' || side === 'both') {
         const hiddenPreview = document.getElementById(`hidden-preview-recto-${agent.id}`);
         if (hiddenPreview) {
-          await generateBadgePDF(hiddenPreview, `Badge_Face_${agent.matricule.replace(/\s+/g, '')}`);
+          await generateBadgePDF(hiddenPreview, `Badge_Face_${agent.matricule.replace(/\s+/g, '')}_${runId}`);
         }
       }
       if (side === 'verso' || side === 'both') {
         const hiddenPreview = document.getElementById(`hidden-preview-verso-${agent.id}`);
         if (hiddenPreview) {
-          await generateBadgePDF(hiddenPreview, `Badge_Dos_${agent.matricule.replace(/\s+/g, '')}`);
+          await generateBadgePDF(hiddenPreview, `Badge_Dos_${agent.matricule.replace(/\s+/g, '')}_${runId}`);
         }
       }
     } finally {
@@ -116,6 +125,15 @@ export default function App() {
 
   const handleExportBulk = async (ids: number[], mode: 'single' | 'grid' = 'single', side: 'recto' | 'verso' | 'both' = 'recto') => {
     setIsGeneratingPDF(true);
+    const now = new Date();
+    const dateStr = now.getFullYear() + 
+                    String(now.getMonth() + 1).padStart(2, '0') + 
+                    String(now.getDate()).padStart(2, '0') + "_" + 
+                    String(now.getHours()).padStart(2, '0') + 
+                    String(now.getMinutes()).padStart(2, '0') + 
+                    String(now.getSeconds()).padStart(2, '0');
+    const runId = `${dateStr}_${Math.floor(100 + Math.random() * 900)}`;
+
     try {
       const selectedAgents = agents.filter(a => ids.includes(a.id!));
       
@@ -126,7 +144,7 @@ export default function App() {
           if (el) elements.push(el);
         }
         if (elements.length > 0) {
-          await generateBulkPDF(elements, mode === 'single' ? 'Badges_Individuels_Face' : 'Planche_A4_Face', mode);
+          await generateBulkPDF(elements, mode === 'single' ? `Badges_Individuels_Face_${runId}` : `Planche_A4_Face_${runId}`, mode);
         }
       }
       
@@ -137,7 +155,7 @@ export default function App() {
           if (el) elements.push(el);
         }
         if (elements.length > 0) {
-          await generateBulkPDF(elements, mode === 'single' ? 'Badges_Individuels_Dos' : 'Planche_A4_Dos', mode);
+          await generateBulkPDF(elements, mode === 'single' ? `Badges_Individuels_Dos_${runId}` : `Planche_A4_Dos_${runId}`, mode);
         }
       }
     } finally {

@@ -17,6 +17,15 @@ interface AgentListProps {
 const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, onPrint, onExportBulk, onDeleteBulk, template }) => {
   const [search, setSearch] = useState('');
   const [selectedAgents, setSelectedAgents] = useState<number[]>([]);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleGlobalClick = () => {
+      setActiveDropdown(null);
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
 
   const filteredAgents = agents.filter(a => 
     a.nom.toLowerCase().includes(search.toLowerCase()) || 
@@ -58,66 +67,90 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
               <span className="text-[10px] font-black uppercase text-gray-400 px-2 tracking-wider">Sélection ({selectedAgents.length}):</span>
               
               {/* Export Recto */}
-              <div className="relative group">
-                <button className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-indigo-700 transition-all shadow-sm">
+              <div className="relative">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveDropdown(prev => prev === 'bulk-recto' ? null : 'bulk-recto');
+                  }}
+                  className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-indigo-700 transition-all shadow-sm"
+                >
                   <FileDown size={14} /> RECTOS (COULEUR)
                 </button>
-                <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden">
-                  <button 
-                    onClick={() => onExportBulk(selectedAgents, 'single', 'recto')}
-                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
-                  >
-                    Format Badge (PDF)
-                  </button>
-                  <button 
-                    onClick={() => onExportBulk(selectedAgents, 'grid', 'recto')}
-                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
-                  >
-                    Planche A4 (PDF)
-                  </button>
-                </div>
+                {activeDropdown === 'bulk-recto' && (
+                  <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                    <button 
+                      onClick={() => onExportBulk(selectedAgents, 'single', 'recto')}
+                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
+                    >
+                      Format Badge (PDF)
+                    </button>
+                    <button 
+                      onClick={() => onExportBulk(selectedAgents, 'grid', 'recto')}
+                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
+                    >
+                      Planche A4 (PDF)
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Export Verso */}
-              <div className="relative group">
-                <button className="px-3 py-1.5 bg-gray-700 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-gray-800 transition-all shadow-sm">
+              <div className="relative">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveDropdown(prev => prev === 'bulk-verso' ? null : 'bulk-verso');
+                  }}
+                  className="px-3 py-1.5 bg-gray-700 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-gray-800 transition-all shadow-sm"
+                >
                   <FileDown size={14} /> VERSOS (N&B)
                 </button>
-                <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden">
-                  <button 
-                    onClick={() => onExportBulk(selectedAgents, 'single', 'verso')}
-                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
-                  >
-                    Format Badge (PDF)
-                  </button>
-                  <button 
-                    onClick={() => onExportBulk(selectedAgents, 'grid', 'verso')}
-                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
-                  >
-                    Planche A4 (PDF)
-                  </button>
-                </div>
+                {activeDropdown === 'bulk-verso' && (
+                  <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                    <button 
+                      onClick={() => onExportBulk(selectedAgents, 'single', 'verso')}
+                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
+                    >
+                      Format Badge (PDF)
+                    </button>
+                    <button 
+                      onClick={() => onExportBulk(selectedAgents, 'grid', 'verso')}
+                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
+                    >
+                      Planche A4 (PDF)
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Export Both */}
-              <div className="relative group">
-                <button className="px-3 py-1.5 bg-amber-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-amber-700 transition-all shadow-sm">
+              <div className="relative">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveDropdown(prev => prev === 'bulk-both' ? null : 'bulk-both');
+                  }}
+                  className="px-3 py-1.5 bg-amber-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-amber-700 transition-all shadow-sm"
+                >
                   <Printer size={14} /> RECTO + VERSO
                 </button>
-                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden">
-                  <button 
-                    onClick={() => onExportBulk(selectedAgents, 'single', 'both')}
-                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
-                  >
-                    Format Badge (2 PDFs)
-                  </button>
-                  <button 
-                    onClick={() => onExportBulk(selectedAgents, 'grid', 'both')}
-                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
-                  >
-                    Planche A4 (2 PDFs)
-                  </button>
-                </div>
+                {activeDropdown === 'bulk-both' && (
+                  <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+                    <button 
+                      onClick={() => onExportBulk(selectedAgents, 'single', 'both')}
+                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
+                    >
+                      Format Badge (2 PDFs)
+                    </button>
+                    <button 
+                      onClick={() => onExportBulk(selectedAgents, 'grid', 'both')}
+                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
+                    >
+                      Planche A4 (2 PDFs)
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button 
@@ -200,33 +233,39 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="relative group">
+                      <div className="relative">
                         <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(prev => prev === `agent-${agent.id}` ? null : `agent-${agent.id}`);
+                          }}
                           className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center"
                           title="Imprimer"
                         >
                           <Printer size={18} />
                         </button>
-                        <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden text-left">
-                          <button 
-                            onClick={() => onPrint(agent, 'recto')}
-                            className="w-full text-left px-3 py-1.5 text-[10px] font-black text-indigo-700 hover:bg-indigo-50"
-                          >
-                            FACE (COULEUR)
-                          </button>
-                          <button 
-                            onClick={() => onPrint(agent, 'verso')}
-                            className="w-full text-left px-3 py-1.5 text-[10px] font-black text-gray-700 hover:bg-gray-50"
-                          >
-                            DOS (N&B)
-                          </button>
-                          <button 
-                            onClick={() => onPrint(agent, 'both')}
-                            className="w-full text-left px-3 py-1.5 text-[10px] font-black text-amber-700 hover:bg-amber-50"
-                          >
-                            LES DEUX (RECTO+VERSO)
-                          </button>
-                        </div>
+                        {activeDropdown === `agent-${agent.id}` && (
+                          <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden text-left">
+                            <button 
+                              onClick={() => onPrint(agent, 'recto')}
+                              className="w-full text-left px-3 py-1.5 text-[10px] font-black text-indigo-700 hover:bg-indigo-50"
+                            >
+                              FACE (COULEUR)
+                            </button>
+                            <button 
+                              onClick={() => onPrint(agent, 'verso')}
+                              className="w-full text-left px-3 py-1.5 text-[10px] font-black text-gray-700 hover:bg-gray-50"
+                            >
+                              DOS (N&B)
+                            </button>
+                            <button 
+                              onClick={() => onPrint(agent, 'both')}
+                              className="w-full text-left px-3 py-1.5 text-[10px] font-black text-amber-700 hover:bg-amber-50"
+                            >
+                              LES DEUX (RECTO+VERSO)
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <button 
                         onClick={() => onEdit(agent)}
