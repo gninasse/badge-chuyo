@@ -1,24 +1,52 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Cropper from 'react-easy-crop';
-import { Agent } from '../types';
-import { Camera, Upload, X, Check, RotateCcw, Copy, ZoomIn, RotateCw } from 'lucide-react';
+import { Agent, BadgeTemplate } from '../types';
+import { Camera, Upload, X, Check, RotateCcw, Copy, ZoomIn, RotateCw, Sparkles } from 'lucide-react';
 import { fileToBase64, optimizeImage, getCroppedImg } from '../utils/image';
 
 interface AgentFormProps {
   agent?: Agent;
+  template?: BadgeTemplate;
   onSubmit: (agent: Omit<Agent, 'id' | 'dateCreation' | 'dateModification'>) => void;
   onCancel: () => void;
 }
 
-const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
+const generateUniqueId = (pattern: string, matricule: string): string => {
+  let result = pattern || '00076[RANDOM_5]';
+  
+  // Replace [MATRICULE]
+  result = result.replace(/\[MATRICULE\]/gi, matricule.replace(/\s+/g, ''));
+  
+  // Replace [YYYY]
+  const currentYear = new Date().getFullYear().toString();
+  result = result.replace(/\[YYYY\]/gi, currentYear);
+  
+  // Replace [RANDOM_X] where X is a digit
+  const randomRegex = /\[RANDOM_(\d+)\]/gi;
+  result = result.replace(randomRegex, (_, lengthStr) => {
+    const length = parseInt(lengthStr, 10) || 5;
+    let randomDigits = '';
+    for (let i = 0; i < length; i++) {
+      randomDigits += Math.floor(Math.random() * 10).toString();
+    }
+    return randomDigits;
+  });
+  
+  return result;
+};
+
+const AgentForm: React.FC<AgentFormProps> = ({ agent, template, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     matricule: agent?.matricule || '',
     nom: agent?.nom || '',
     service: agent?.service || '',
     emploi: agent?.emploi || '',
-    photo: agent?.photo || ''
+    photo: agent?.photo || '',
+    cardId: agent?.cardId || (agent?.matricule ? agent.matricule.replace(/\s+/g, '') : '')
   });
+
+  const [isCardIdManual, setIsCardIdManual] = useState(!!agent?.cardId);
 
   const [isCropping, setIsCropping] = useState(false);
   const [rawImage, setRawImage] = useState<string | null>(null);
@@ -123,7 +151,14 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 required
                 type="text"
                 value={formData.matricule}
-                onChange={(e) => setFormData({ ...formData, matricule: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData(prev => ({
+                    ...prev,
+                    matricule: val,
+                    cardId: isCardIdManual ? prev.cardId : val.replace(/\s+/g, '')
+                  }));
+                }}
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 placeholder="Ex: 239 781 N"
               />
@@ -141,6 +176,37 @@ const AgentForm: React.FC<AgentFormProps> = ({ agent, onSubmit, onCancel }) => {
                 {copied ? <Check size={12} /> : <Copy size={12} />}
                 <span className="underline">{copied ? 'Copié !' : 'Copier sans espaces'}</span>
               </button>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-400 uppercase mb-1">ID Unique (Dos du Badge)</label>
+              <div className="flex gap-2">
+                <input 
+                  type="text"
+                  value={formData.cardId}
+                  onChange={(e) => {
+                    setIsCardIdManual(true);
+                    setFormData(prev => ({ ...prev, cardId: e.target.value }));
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-mono text-xs"
+                  placeholder="ID Unique"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const pattern = template?.cardIdPattern || '00076[RANDOM_5]';
+                    const generated = generateUniqueId(pattern, formData.matricule);
+                    setFormData(prev => ({ ...prev, cardId: generated }));
+                    setIsCardIdManual(true);
+                  }}
+                  className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 text-[10px] font-black rounded-xl border border-indigo-100 transition-all flex items-center gap-1 shadow-sm whitespace-nowrap"
+                  title="Générer un identifiant selon le motif configuré"
+                >
+                  <Sparkles size={12} /> GÉNÉRER ID
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 mt-1">
+                Motif actif : <code className="bg-gray-100 px-1 py-0.5 rounded font-mono font-bold text-indigo-600">{template?.cardIdPattern || '00076[RANDOM_5]'}</code>
+              </p>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nom Complet</label>

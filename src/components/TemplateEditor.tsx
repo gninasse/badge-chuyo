@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BadgeTemplate, BadgeFieldConfig } from '../types';
-import { Settings, Image as ImageIcon, Move, Type, Palette, Eye, EyeOff, RotateCcw, PenTool, ChevronUp, ChevronDown, Plus, Minus, Download, Upload } from 'lucide-react';
+import { Settings, Image as ImageIcon, Move, Type, Palette, Eye, EyeOff, RotateCcw, PenTool, ChevronUp, ChevronDown, Plus, Minus, Download, Upload, CreditCard } from 'lucide-react';
 import BadgePreview from './BadgePreview';
 import { DEFAULT_TEMPLATE } from '../db';
 import SignatureCanvas from 'react-signature-canvas';
@@ -11,7 +11,7 @@ interface TemplateEditorProps {
 }
 
 const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) => {
-  const [activeTab, setActiveTab] = useState<'layout' | 'header' | 'logos' | 'footer' | 'signature' | 'bg'>('layout');
+  const [activeTab, setActiveTab] = useState<'layout' | 'header' | 'logos' | 'footer' | 'signature' | 'bg' | 'back'>('layout');
   const [draggingField, setDraggingField] = useState<string | null>(null);
   const [hoveredField, setHoveredField] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -626,18 +626,24 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
       {/* Preview Area */}
       <div className="flex-1 flex flex-col items-center">
         <div className="mb-4 text-sm text-gray-500 flex items-center gap-2">
-          <Move size={16} />
-          <span>Glissez les éléments sur le badge pour les repositionner</span>
+          {activeTab === 'back' ? (
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Aperçu du Dos du Badge (Ajustement par texte)</span>
+          ) : (
+            <>
+              <Move size={16} />
+              <span>Glissez les éléments sur le badge pour les repositionner</span>
+            </>
+          )}
         </div>
         <div 
           ref={previewRef}
           className="relative select-none cursor-crosshair"
           style={{ width: '208px', height: '321px' }}
         >
-          <BadgePreview template={template} agent={{}} />
+          <BadgePreview template={template} agent={{}} showBack={activeTab === 'back'} />
           
           {/* Draggable Overlays */}
-          {Object.entries(template.fields).map(([key, config]: [string, any]) => {
+          {activeTab !== 'back' && Object.entries(template.fields).map(([key, config]: [string, any]) => {
             if (!config) return null;
             const isHovered = hoveredField === key;
             return (
@@ -722,6 +728,12 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
             className={`flex-1 min-w-[70px] py-4 text-[10px] font-bold uppercase tracking-widest flex flex-col items-center gap-1 transition-all ${activeTab === 'bg' ? 'text-indigo-600 bg-white border-b-2 border-indigo-600 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]' : 'text-gray-400 hover:text-gray-600'}`}
           >
             <Palette size={14} /> <span>FOND</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('back')}
+            className={`flex-1 min-w-[70px] py-4 text-[10px] font-bold uppercase tracking-widest flex flex-col items-center gap-1 transition-all ${activeTab === 'back' ? 'text-indigo-600 bg-white border-b-2 border-indigo-600 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]' : 'text-gray-400 hover:text-gray-600'}`}
+          >
+            <CreditCard size={14} /> <span>DOS</span>
           </button>
         </div>
 
@@ -948,6 +960,76 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                 <p className="text-[10px] text-indigo-600 leading-relaxed">
                   Utilisez une image de fond avec des zones claires pour que les textes restent lisibles. Vous pouvez ajuster la position des éléments en les faisant glisser sur l'aperçu.
                 </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'back' && (
+            <div className="p-4 space-y-4">
+              <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                <h4 className="text-[10px] font-black text-indigo-700 uppercase mb-1">Configuration du Dos</h4>
+                <p className="text-[10px] text-indigo-600 leading-relaxed">
+                  Modifiez ici le texte imprimé au dos du badge et le modèle de génération de l'identifiant unique.
+                </p>
+              </div>
+
+              {/* ID Generator Pattern */}
+              <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Format ID Unique</label>
+                <input 
+                  type="text"
+                  value={template.cardIdPattern || '00076[RANDOM_5]'}
+                  onChange={(e) => onChange({ ...template, cardIdPattern: e.target.value })}
+                  className="w-full px-3 py-2 text-xs font-mono border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                  placeholder="ex: 00076[RANDOM_5]"
+                />
+                <div className="text-[9px] text-gray-500 leading-normal space-y-1 bg-gray-50 p-2 rounded-lg">
+                  <p>🔹 <code className="bg-gray-200 px-1 rounded font-mono">[RANDOM_X]</code> : X chiffres aléatoires (ex: <code className="bg-gray-200 px-1 rounded font-mono">[RANDOM_5]</code>)</p>
+                  <p>🔹 <code className="bg-gray-200 px-1 rounded font-mono">[MATRICULE]</code> : Recopie le matricule de l'agent</p>
+                  <p>🔹 <code className="bg-gray-200 px-1 rounded font-mono">[YYYY]</code> : Année en cours (ex: 2026)</p>
+                  <p>Exemple : <code className="bg-gray-200 px-1 rounded font-mono">DRH-[YYYY]-[RANDOM_4]</code></p>
+                </div>
+              </div>
+
+              {/* Back texts */}
+              <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3">
+                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Lignes de texte (Dos)</span>
+                
+                {Array.from({ length: 12 }).map((_, i) => {
+                  const lineKey = `line${i + 1}` as keyof NonNullable<BadgeTemplate['backTexts']>;
+                  const defaultTexts = {
+                    line1: 'Cette carte est strictement personnelle.',
+                    line2: 'En cas de perte ou de vol,',
+                    line3: 'le titulaire devra aviser',
+                    line4: 'la direction des ressources humaines.',
+                    line5: "A restituer à l'employeur",
+                    line6: 'en cas de cessation de fonction',
+                    line7: 'CENTRE HOSPITALIER',
+                    line8: 'YALGADO OUEDRAOGO',
+                    line9: 'UNIVERSITAIRE',
+                    line10: '03 BP 7022 Ouagadougou 03',
+                    line11: 'Tél : 25 31 16 55',
+                    line12: 'Email : Chubf@gmail.com'
+                  };
+                  const currentTexts = template.backTexts || defaultTexts;
+                  const value = currentTexts[lineKey] || '';
+                  
+                  return (
+                    <div key={lineKey} className="space-y-1">
+                      <label className="text-[9px] font-bold text-gray-400 uppercase">Ligne {i + 1}</label>
+                      <input 
+                        type="text"
+                        value={value}
+                        onChange={(e) => {
+                          const updatedTexts = { ...currentTexts, [lineKey]: e.target.value };
+                          onChange({ ...template, backTexts: updatedTexts });
+                        }}
+                        className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder={`Texte ligne ${i + 1}`}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -36,7 +36,22 @@ export const DEFAULT_TEMPLATE: BadgeTemplate = {
     qrCode: { x: 155, y: 260, size: 40, visible: false },
     footerText: { text: 'Visa du DG/CHU-YO', x: 140, y: 295, fontSize: 9, fontFamily: 'Tahoma', color: '#000000', align: 'center', isUppercase: false, isBold: true, visible: true },
     signature: { x: 110, y: 305, width: 85, height: 35, visible: true }
-  }
+  },
+  backTexts: {
+    line1: 'Cette carte est strictement personnelle.',
+    line2: 'En cas de perte ou de vol,',
+    line3: 'le titulaire devra aviser',
+    line4: 'la direction des ressources humaines.',
+    line5: "A restituer à l'employeur",
+    line6: 'en cas de cessation de fonction',
+    line7: 'CENTRE HOSPITALIER',
+    line8: 'YALGADO OUEDRAOGO',
+    line9: 'UNIVERSITAIRE',
+    line10: '03 BP 7022 Ouagadougou 03',
+    line11: 'Tél : 25 31 16 55',
+    line12: 'Email : Chubf@gmail.com'
+  },
+  cardIdPattern: '00076[RANDOM_5]'
 };
 
 export async function initDb() {

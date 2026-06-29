@@ -5,6 +5,7 @@ export interface Agent {
   service: string;
   emploi: string;
   photo: string; // base64
+  cardId?: string; // unique card id for the back
   dateCreation: number;
   dateModification: number;
 }
@@ -71,4 +72,19 @@ export interface BadgeTemplate {
     };
   };
   isDefault: boolean;
+  backTexts?: {
+    line1: string;
+    line2: string;
+    line3: string;
+    line4: string;
+    line5: string;
+    line6: string;
+    line7: string;
+    line8: string;
+    line9: string;
+    line10: string;
+    line11: string;
+    line12: string;
+  };
+  cardIdPattern?: string; // e.g. "00076[RANDOM_5]" or "[MATRICULE]"
 }

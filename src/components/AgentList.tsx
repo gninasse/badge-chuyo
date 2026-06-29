@@ -8,8 +8,8 @@ interface AgentListProps {
   onAdd: () => void;
   onEdit: (agent: Agent) => void;
   onDelete: (id: number) => void;
-  onPrint: (agent: Agent) => void;
-  onExportBulk: (ids: number[], mode: 'single' | 'grid') => void;
+  onPrint: (agent: Agent, side: 'recto' | 'verso' | 'both') => void;
+  onExportBulk: (ids: number[], mode: 'single' | 'grid', side: 'recto' | 'verso' | 'both') => void;
   onDeleteBulk: (ids: number[]) => void;
   template: BadgeTemplate;
 }
@@ -52,40 +52,91 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
           />
         </div>
         
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap gap-3 items-center w-full md:w-auto bg-gray-50/50 p-2 rounded-2xl border border-gray-100">
           {selectedAgents.length > 0 && (
-            <>
-              <button 
-                onClick={() => onExportBulk(selectedAgents, 'single')}
-                className="flex-1 md:flex-none px-4 py-2 bg-indigo-50 text-indigo-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all border border-indigo-100"
-                title="Un badge par page"
-              >
-                <FileDown size={18} /> PDF Individuel ({selectedAgents.length})
-              </button>
-              <button 
-                onClick={() => onExportBulk(selectedAgents, 'grid')}
-                className="flex-1 md:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-emerald-100 transition-all border border-emerald-100"
-                title="Plusieurs badges par page A4"
-              >
-                <Printer size={18} /> Format A4 ({selectedAgents.length})
-              </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-black uppercase text-gray-400 px-2 tracking-wider">Sélection ({selectedAgents.length}):</span>
+              
+              {/* Export Recto */}
+              <div className="relative group">
+                <button className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-indigo-700 transition-all shadow-sm">
+                  <FileDown size={14} /> RECTOS (COULEUR)
+                </button>
+                <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden">
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'single', 'recto')}
+                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
+                  >
+                    Format Badge (PDF)
+                  </button>
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'grid', 'recto')}
+                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
+                  >
+                    Planche A4 (PDF)
+                  </button>
+                </div>
+              </div>
+
+              {/* Export Verso */}
+              <div className="relative group">
+                <button className="px-3 py-1.5 bg-gray-700 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-gray-800 transition-all shadow-sm">
+                  <FileDown size={14} /> VERSOS (N&B)
+                </button>
+                <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden">
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'single', 'verso')}
+                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
+                  >
+                    Format Badge (PDF)
+                  </button>
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'grid', 'verso')}
+                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
+                  >
+                    Planche A4 (PDF)
+                  </button>
+                </div>
+              </div>
+
+              {/* Export Both */}
+              <div className="relative group">
+                <button className="px-3 py-1.5 bg-amber-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-amber-700 transition-all shadow-sm">
+                  <Printer size={14} /> RECTO + VERSO
+                </button>
+                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden">
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'single', 'both')}
+                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
+                  >
+                    Format Badge (2 PDFs)
+                  </button>
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'grid', 'both')}
+                    className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
+                  >
+                    Planche A4 (2 PDFs)
+                  </button>
+                </div>
+              </div>
+
               <button 
                 onClick={() => {
                   onDeleteBulk(selectedAgents);
                   setSelectedAgents([]);
                 }}
-                className="flex-1 md:flex-none px-4 py-2 bg-red-50 text-red-700 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-all border border-red-100"
+                className="px-3 py-1.5 bg-red-50 text-red-700 text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-red-100 transition-all border border-red-100"
                 title="Supprimer la sélection"
               >
-                <Trash2 size={18} /> Supprimer ({selectedAgents.length})
+                <Trash2 size={14} /> SUPPRIMER
               </button>
-            </>
+            </div>
           )}
           <button 
             onClick={onAdd}
-            className="flex-1 md:flex-none px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
+            className="flex-1 md:flex-none px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all text-xs"
           >
-            <UserPlus size={18} /> Nouvel Agent
+            <UserPlus size={16} /> Nouvel Agent
           </button>
         </div>
       </div>
@@ -149,13 +200,34 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => onPrint(agent)}
-                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                        title="Imprimer le badge"
-                      >
-                        <Printer size={18} />
-                      </button>
+                      <div className="relative group">
+                        <button 
+                          className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center"
+                          title="Imprimer"
+                        >
+                          <Printer size={18} />
+                        </button>
+                        <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50 overflow-hidden text-left">
+                          <button 
+                            onClick={() => onPrint(agent, 'recto')}
+                            className="w-full text-left px-3 py-1.5 text-[10px] font-black text-indigo-700 hover:bg-indigo-50"
+                          >
+                            FACE (COULEUR)
+                          </button>
+                          <button 
+                            onClick={() => onPrint(agent, 'verso')}
+                            className="w-full text-left px-3 py-1.5 text-[10px] font-black text-gray-700 hover:bg-gray-50"
+                          >
+                            DOS (N&B)
+                          </button>
+                          <button 
+                            onClick={() => onPrint(agent, 'both')}
+                            className="w-full text-left px-3 py-1.5 text-[10px] font-black text-amber-700 hover:bg-amber-50"
+                          >
+                            LES DEUX (RECTO+VERSO)
+                          </button>
+                        </div>
+                      </div>
                       <button 
                         onClick={() => onEdit(agent)}
                         className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"

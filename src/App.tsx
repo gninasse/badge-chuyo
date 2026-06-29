@@ -94,42 +94,51 @@ export default function App() {
     await db.templates.update(template.id, template);
   };
 
-  const handlePrintAgent = async (agent: Agent) => {
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.left = '-9999px';
-    document.body.appendChild(container);
-
-    // Create a temporary React root to render the badge
-    // Since we're in a simple app, we can just use a hidden div and a ref
-    const badgeId = `badge-print-${agent.id}`;
-    const badgeElement = document.createElement('div');
-    badgeElement.id = badgeId;
-    container.appendChild(badgeElement);
-
-    // We need to render the BadgePreview into this element
-    // For simplicity in this demo, we'll use a hidden preview in the main UI
-    const hiddenPreview = document.getElementById(`hidden-preview-${agent.id}`);
-    if (hiddenPreview) {
-      await generateBadgePDF(hiddenPreview, `Badge_${agent.matricule}`);
+  const handlePrintAgent = async (agent: Agent, side: 'recto' | 'verso' | 'both' = 'recto') => {
+    setIsGeneratingPDF(true);
+    try {
+      if (side === 'recto' || side === 'both') {
+        const hiddenPreview = document.getElementById(`hidden-preview-recto-${agent.id}`);
+        if (hiddenPreview) {
+          await generateBadgePDF(hiddenPreview, `Badge_Face_${agent.matricule.replace(/\s+/g, '')}`);
+        }
+      }
+      if (side === 'verso' || side === 'both') {
+        const hiddenPreview = document.getElementById(`hidden-preview-verso-${agent.id}`);
+        if (hiddenPreview) {
+          await generateBadgePDF(hiddenPreview, `Badge_Dos_${agent.matricule.replace(/\s+/g, '')}`);
+        }
+      }
+    } finally {
+      setIsGeneratingPDF(false);
     }
-    
-    document.body.removeChild(container);
   };
 
-  const handleExportBulk = async (ids: number[], mode: 'single' | 'grid' = 'single') => {
+  const handleExportBulk = async (ids: number[], mode: 'single' | 'grid' = 'single', side: 'recto' | 'verso' | 'both' = 'recto') => {
     setIsGeneratingPDF(true);
     try {
       const selectedAgents = agents.filter(a => ids.includes(a.id!));
-      const elements: HTMLElement[] = [];
       
-      for (const agent of selectedAgents) {
-        const el = document.getElementById(`hidden-preview-${agent.id}`);
-        if (el) elements.push(el);
+      if (side === 'recto' || side === 'both') {
+        const elements: HTMLElement[] = [];
+        for (const agent of selectedAgents) {
+          const el = document.getElementById(`hidden-preview-recto-${agent.id}`);
+          if (el) elements.push(el);
+        }
+        if (elements.length > 0) {
+          await generateBulkPDF(elements, mode === 'single' ? 'Badges_Individuels_Face' : 'Planche_A4_Face', mode);
+        }
       }
-
-      if (elements.length > 0) {
-        await generateBulkPDF(elements, mode === 'single' ? 'Badges_Individuels' : 'Planche_A4', mode);
+      
+      if (side === 'verso' || side === 'both') {
+        const elements: HTMLElement[] = [];
+        for (const agent of selectedAgents) {
+          const el = document.getElementById(`hidden-preview-verso-${agent.id}`);
+          if (el) elements.push(el);
+        }
+        if (elements.length > 0) {
+          await generateBulkPDF(elements, mode === 'single' ? 'Badges_Individuels_Dos' : 'Planche_A4_Dos', mode);
+        }
       }
     } finally {
       setIsGeneratingPDF(false);
@@ -244,6 +253,7 @@ export default function App() {
               {isAddingAgent || editingAgent ? (
                 <AgentForm 
                   agent={editingAgent || undefined}
+                  template={defaultTemplate}
                   onSubmit={editingAgent ? handleUpdateAgent : handleAddAgent}
                   onCancel={() => { setIsAddingAgent(false); setEditingAgent(null); }}
                 />
@@ -343,9 +353,14 @@ export default function App() {
       {/* Hidden previews for PDF generation */}
       <div className="fixed -left-[2000px] top-0 pointer-events-none">
         {agents.map(agent => (
-          <div key={agent.id} id={`hidden-preview-${agent.id}`}>
-            {defaultTemplate && <BadgePreview template={defaultTemplate} agent={agent} />}
-          </div>
+          <React.Fragment key={agent.id}>
+            <div id={`hidden-preview-recto-${agent.id}`}>
+              {defaultTemplate && <BadgePreview template={defaultTemplate} agent={agent} showBack={false} />}
+            </div>
+            <div id={`hidden-preview-verso-${agent.id}`}>
+              {defaultTemplate && <BadgePreview template={defaultTemplate} agent={agent} showBack={true} />}
+            </div>
+          </React.Fragment>
         ))}
       </div>
 
