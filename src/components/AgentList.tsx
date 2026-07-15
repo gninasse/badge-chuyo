@@ -27,10 +27,16 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
     return () => window.removeEventListener('click', handleGlobalClick);
   }, []);
 
-  const filteredAgents = agents.filter(a => 
-    a.nom.toLowerCase().includes(search.toLowerCase()) || 
-    a.matricule.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredAgents = agents
+    .filter(a => 
+      a.nom.toLowerCase().includes(search.toLowerCase()) || 
+      a.matricule.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      const timeA = Math.max(a.dateModification || 0, a.dateCreation || 0, a.id || 0);
+      const timeB = Math.max(b.dateModification || 0, b.dateCreation || 0, b.id || 0);
+      return timeB - timeA;
+    });
 
   const toggleSelect = (id: number) => {
     setSelectedAgents(prev => 
@@ -61,118 +67,140 @@ const AgentList: React.FC<AgentListProps> = ({ agents, onAdd, onEdit, onDelete, 
           />
         </div>
         
-        <div className="flex flex-wrap gap-3 items-center w-full md:w-auto bg-gray-50/50 p-2 rounded-2xl border border-gray-100">
-          {selectedAgents.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-black uppercase text-gray-400 px-2 tracking-wider">Sélection ({selectedAgents.length}):</span>
-              
-              {/* Export Recto */}
-              <div className="relative">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdown(prev => prev === 'bulk-recto' ? null : 'bulk-recto');
-                  }}
-                  className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-indigo-700 transition-all shadow-sm"
-                >
-                  <FileDown size={14} /> RECTOS (COULEUR)
-                </button>
-                {activeDropdown === 'bulk-recto' && (
-                  <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                    <button 
-                      onClick={() => onExportBulk(selectedAgents, 'single', 'recto')}
-                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
-                    >
-                      Format Badge (PDF)
-                    </button>
-                    <button 
-                      onClick={() => onExportBulk(selectedAgents, 'grid', 'recto')}
-                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 font-medium"
-                    >
-                      Planche A4 (PDF)
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Export Verso */}
-              <div className="relative">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdown(prev => prev === 'bulk-verso' ? null : 'bulk-verso');
-                  }}
-                  className="px-3 py-1.5 bg-gray-700 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-gray-800 transition-all shadow-sm"
-                >
-                  <FileDown size={14} /> VERSOS (N&B)
-                </button>
-                {activeDropdown === 'bulk-verso' && (
-                  <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                    <button 
-                      onClick={() => onExportBulk(selectedAgents, 'single', 'verso')}
-                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
-                    >
-                      Format Badge (PDF)
-                    </button>
-                    <button 
-                      onClick={() => onExportBulk(selectedAgents, 'grid', 'verso')}
-                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 font-medium"
-                    >
-                      Planche A4 (PDF)
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Export Both */}
-              <div className="relative">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdown(prev => prev === 'bulk-both' ? null : 'bulk-both');
-                  }}
-                  className="px-3 py-1.5 bg-amber-600 text-white text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-amber-700 transition-all shadow-sm"
-                >
-                  <Printer size={14} /> RECTO + VERSO
-                </button>
-                {activeDropdown === 'bulk-both' && (
-                  <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
-                    <button 
-                      onClick={() => onExportBulk(selectedAgents, 'single', 'both')}
-                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
-                    >
-                      Format Badge (2 PDFs)
-                    </button>
-                    <button 
-                      onClick={() => onExportBulk(selectedAgents, 'grid', 'both')}
-                      className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-amber-50 font-medium"
-                    >
-                      Planche A4 (2 PDFs)
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <button 
-                onClick={() => {
-                  onDeleteBulk(selectedAgents);
-                  setSelectedAgents([]);
-                }}
-                className="px-3 py-1.5 bg-red-50 text-red-700 text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-red-100 transition-all border border-red-100"
-                title="Supprimer la sélection"
-              >
-                <Trash2 size={14} /> SUPPRIMER
-              </button>
-            </div>
-          )}
+        <div className="flex gap-3 items-center w-full md:w-auto justify-end">
           <button 
             onClick={onAdd}
-            className="flex-1 md:flex-none px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all text-xs"
+            className="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all text-xs"
           >
             <UserPlus size={16} /> Nouvel Agent
           </button>
         </div>
       </div>
+
+      {/* Selected Action Bar */}
+      {selectedAgents.length > 0 && (
+        <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-xl border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-500/20 text-indigo-400 p-2 rounded-xl">
+              <UserPlus size={18} />
+            </div>
+            <div>
+              <div className="font-bold text-sm text-white">
+                {selectedAgents.length} {selectedAgents.length > 1 ? 'agents sélectionnés' : 'agent sélectionné'}
+              </div>
+              <button 
+                onClick={() => setSelectedAgents([])}
+                className="text-xs text-indigo-400 hover:text-indigo-300 underline font-medium transition-colors text-left"
+              >
+                Annuler la sélection
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-end">
+            {/* Export Recto */}
+            <div className="relative">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveDropdown(prev => prev === 'bulk-recto' ? null : 'bulk-recto');
+                }}
+                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl flex items-center gap-2 border border-slate-700 transition-all text-indigo-300 shadow-sm"
+              >
+                <FileDown size={14} /> RECTOS (COULEUR)
+              </button>
+              {activeDropdown === 'bulk-recto' && (
+                <div className="absolute right-0 lg:left-0 mt-2 w-48 bg-white text-gray-800 border border-gray-100 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-50">
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'single', 'recto')}
+                    className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <span>📇 Format Badge (PDF)</span>
+                  </button>
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'grid', 'recto')}
+                    className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <span>📋 Planche A4 (PDF)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Export Verso */}
+            <div className="relative">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveDropdown(prev => prev === 'bulk-verso' ? null : 'bulk-verso');
+                }}
+                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl flex items-center gap-2 border border-slate-700 transition-all text-gray-300 shadow-sm"
+              >
+                <FileDown size={14} /> VERSOS (N&B)
+              </button>
+              {activeDropdown === 'bulk-verso' && (
+                <div className="absolute right-0 lg:left-0 mt-2 w-48 bg-white text-gray-800 border border-gray-100 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-50">
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'single', 'verso')}
+                    className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <span>📇 Format Badge (PDF)</span>
+                  </button>
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'grid', 'verso')}
+                    className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <span>📋 Planche A4 (PDF)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Export Both */}
+            <div className="relative">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveDropdown(prev => prev === 'bulk-both' ? null : 'bulk-both');
+                }}
+                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl flex items-center gap-2 border border-slate-700 transition-all text-amber-300 shadow-sm"
+              >
+                <Printer size={14} /> RECTO + VERSO
+              </button>
+              {activeDropdown === 'bulk-both' && (
+                <div className="absolute right-0 mt-2 w-52 bg-white text-gray-800 border border-gray-100 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-50">
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'single', 'both')}
+                    className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-amber-50 hover:text-amber-700 font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <span>📇 Format Badge (2 PDFs)</span>
+                  </button>
+                  <button 
+                    onClick={() => onExportBulk(selectedAgents, 'grid', 'both')}
+                    className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-amber-50 hover:text-amber-700 font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <span>📋 Planche A4 (2 PDFs)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="h-6 w-px bg-slate-800 hidden lg:block mx-1"></div>
+
+            {/* Delete button */}
+            <button 
+              onClick={() => {
+                onDeleteBulk(selectedAgents);
+                setSelectedAgents([]);
+              }}
+              className="px-3.5 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-400 hover:text-red-300 text-xs font-bold rounded-xl flex items-center gap-2 border border-red-900/50 transition-all"
+              title="Supprimer la sélection"
+            >
+              <Trash2 size={14} /> SUPPRIMER
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Table / Grid */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
