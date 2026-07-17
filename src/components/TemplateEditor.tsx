@@ -657,7 +657,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onChange }) =
                   left: `${config.x - (key === 'photo' || key === 'qrCode' || key === 'logoLeft' || key === 'logoRight' || key === 'signature' ? 0 : (config.align === 'center' ? 104 : 0))}px`,
                   top: `${config.y - (key === 'photo' || key === 'qrCode' || key === 'logoLeft' || key === 'logoRight' || key === 'signature' ? 0 : config.fontSize)}px`,
                   width: `${key === 'photo' || key === 'signature' ? config.width : (key === 'qrCode' || key === 'logoLeft' || key === 'logoRight' ? config.size : 208)}px`,
-                  height: `${key === 'photo' || key === 'signature' ? config.height : (key === 'qrCode' || key === 'logoLeft' || key === 'logoRight' ? config.size : config.fontSize * 1.5)}px`,
+                  height: `${key === 'photo' || key === 'signature' ? config.height : (key === 'qrCode' || key === 'logoLeft' || key === 'logoRight' ? config.size : (key === 'service' ? config.fontSize * 2.5 : config.fontSize * 1.5))}px`,
                   zIndex: (draggingField === key || isHovered) ? 50 : 10
                 }}
               />

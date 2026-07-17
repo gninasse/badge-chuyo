@@ -97,24 +97,43 @@ const BadgePreview: React.FC<BadgePreviewProps> = ({ template, agent, scale = 1,
     );
   }
 
-  const getStyle = (config: any) => ({
-    position: 'absolute' as const,
-    left: `${config.x}px`,
-    top: `${config.y}px`,
-    fontSize: `${config.fontSize}px`,
-    fontFamily: config.fontFamily || 'inherit',
-    color: config.color,
-    textAlign: config.align as any,
-    fontWeight: config.isBold ? 'bold' : 'normal',
-    textTransform: config.isUppercase ? 'uppercase' : 'none' as any,
-    width: config.align === 'center' ? '208px' : 'auto',
-    marginLeft: config.align === 'center' ? '-104px' : '0',
-    display: config?.visible !== false ? 'block' : 'none',
-    pointerEvents: 'none' as const,
-    whiteSpace: 'nowrap' as const,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis'
-  });
+  const getStyle = (config: any, isMultiline = false) => {
+    const baseStyle: any = {
+      position: 'absolute' as const,
+      left: `${config.x}px`,
+      top: `${config.y}px`,
+      fontSize: `${config.fontSize}px`,
+      fontFamily: config.fontFamily || 'inherit',
+      color: config.color,
+      textAlign: config.align as any,
+      fontWeight: config.isBold ? 'bold' : 'normal',
+      textTransform: config.isUppercase ? 'uppercase' : 'none' as any,
+      width: config.align === 'center' ? '208px' : (isMultiline ? `${208 - config.x}px` : 'auto'),
+      marginLeft: config.align === 'center' ? '-104px' : '0',
+      display: config?.visible !== false ? 'block' : 'none',
+      pointerEvents: 'none' as const,
+    };
+
+    if (isMultiline) {
+      return {
+        ...baseStyle,
+        display: config?.visible !== false ? '-webkit-box' : 'none',
+        WebkitBoxOrient: 'vertical' as const,
+        WebkitLineClamp: 2,
+        overflow: 'hidden',
+        whiteSpace: 'normal' as const,
+        lineHeight: '1.15',
+        maxHeight: `${config.fontSize * 2.5}px`,
+      };
+    } else {
+      return {
+        ...baseStyle,
+        whiteSpace: 'nowrap' as const,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      };
+    }
+  };
 
   return (
     <div 
@@ -207,7 +226,7 @@ const BadgePreview: React.FC<BadgePreviewProps> = ({ template, agent, scale = 1,
       {/* Fields */}
       <div style={getStyle(fields.nom)}>{agent.nom || 'NOM PRÉNOM'}</div>
       <div style={getStyle(fields.emploi)}>{agent.emploi || 'EMPLOI / FONCTION'}</div>
-      <div style={getStyle(fields.service)}>{agent.service || 'SERVICE / DÉPARTEMENT'}</div>
+      <div style={getStyle(fields.service, true)}>{agent.service || 'SERVICE / DÉPARTEMENT'}</div>
       <div style={getStyle(fields.matricule)}>{agent.matricule || 'MATRICULE'}</div>
 
       {/* QR Code */}
