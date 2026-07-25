@@ -30,67 +30,87 @@ const BadgePreview: React.FC<BadgePreviewProps> = ({ template, agent, scale = 1,
       line11: 'Tél : 25 31 16 55',
       line12: 'Email : Chubf@gmail.com'
     };
+
     return (
       <div 
         id={id}
-        className="relative bg-white shadow-lg overflow-hidden border border-gray-200 flex flex-col justify-between py-6 px-4"
+        className="relative bg-white shadow-lg overflow-hidden border border-gray-200 flex flex-col justify-between py-5 px-3 text-center"
         style={{ 
           width: '208px', 
           height: '321px',
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
-          fontFamily: 'Tahoma, sans-serif',
+          fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
           color: '#000000',
           backgroundColor: '#ffffff'
         }}
       >
-        {/* Rotated Card ID on the left margin */}
+        {/* Vertical Unique Badge ID on the left side */}
         <div 
           style={{
             position: 'absolute',
-            left: '-62px',
-            top: '155px',
+            left: '-132px',
+            top: '150px',
+            width: '290px',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             transform: 'rotate(-90deg)',
-            transformOrigin: 'center',
-            fontFamily: 'monospace',
+            transformOrigin: 'center center',
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
             fontSize: '9px',
             fontWeight: 'bold',
-            letterSpacing: '1px',
-            color: '#111111',
+            letterSpacing: '1.5px',
+            color: '#111827',
             whiteSpace: 'nowrap',
-            width: '200px',
-            textAlign: 'center'
+            pointerEvents: 'none',
+            zIndex: 10
           }}
         >
           {cardId}
         </div>
 
-        <div className="flex-1 flex flex-col justify-center items-center text-center pl-6 space-y-2">
-          {texts.line1 && <p className="font-bold text-[9px] leading-tight text-gray-900">{texts.line1}</p>}
-          
-          <div className="text-[8px] leading-snug text-gray-700">
-            {texts.line2 && <p>{texts.line2}</p>}
-            {texts.line3 && <p>{texts.line3}</p>}
-            {texts.line4 && <p className="font-bold text-gray-900">{texts.line4}</p>}
+        {/* Main Content shifted slightly to the right */}
+        <div className="flex-1 flex flex-col justify-between pl-5 pr-1 text-center">
+          {/* Top Disclaimer Section */}
+          <div className="flex flex-col items-center justify-center space-y-1.5 pt-1">
+            {texts.line1 && (
+              <p className="font-bold text-[9.5px] leading-tight text-black tracking-tight">
+                {texts.line1}
+              </p>
+            )}
+            
+            <div className="text-[8.5px] leading-tight text-black font-semibold space-y-0.5">
+              {texts.line2 && <p>{texts.line2}</p>}
+              {texts.line3 && <p>{texts.line3}</p>}
+              {texts.line4 && <p className="font-bold">{texts.line4}</p>}
+            </div>
+
+            <div className="text-[8.5px] leading-tight text-black font-bold pt-1 space-y-0.5">
+              {texts.line5 && <p>{texts.line5}</p>}
+              {texts.line6 && <p>{texts.line6}</p>}
+            </div>
           </div>
 
-          <div className="text-[8px] leading-snug text-gray-700 font-bold">
-            {texts.line5 && <p>{texts.line5}</p>}
-            {texts.line6 && <p className="font-normal text-gray-500">{texts.line6}</p>}
+          {/* Separator Line */}
+          <div className="my-1.5 flex justify-center w-full">
+            <div className="w-[92%] border-t-[1.5px] border-black"></div>
           </div>
 
-          <div className="w-[85%] border-t border-black my-2"></div>
+          {/* Bottom Section: Institution & Contact */}
+          <div className="flex flex-col items-center justify-center space-y-1.5 pb-1">
+            <div className="text-[9.5px] leading-tight text-black font-black tracking-wide uppercase space-y-0.5">
+              {texts.line7 && <p>{texts.line7}</p>}
+              {texts.line8 && <p>{texts.line8}</p>}
+              {texts.line9 && <p>{texts.line9}</p>}
+            </div>
 
-          <div className="text-[8.5px] leading-snug text-gray-800 uppercase font-black tracking-wide">
-            {texts.line7 && <p>{texts.line7}</p>}
-            {texts.line8 && <p>{texts.line8}</p>}
-            {texts.line9 && <p>{texts.line9}</p>}
-          </div>
-
-          <div className="text-[8px] leading-snug text-gray-600 font-medium pt-1">
-            {texts.line10 && <p>{texts.line10}</p>}
-            {texts.line11 && <p>{texts.line11}</p>}
-            {texts.line12 && <p>{texts.line12}</p>}
+            <div className="text-[8.5px] leading-tight text-black font-bold pt-0.5 space-y-0.5">
+              {texts.line10 && <p>{texts.line10}</p>}
+              {texts.line11 && <p>{texts.line11}</p>}
+              {texts.line12 && <p>{texts.line12}</p>}
+            </div>
           </div>
         </div>
       </div>

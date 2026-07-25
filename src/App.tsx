@@ -37,6 +37,10 @@ export default function App() {
   const defaultTemplate = rawDefaultTemplate ? {
     ...DEFAULT_TEMPLATE,
     ...rawDefaultTemplate,
+    backTexts: {
+      ...DEFAULT_TEMPLATE.backTexts,
+      ...(rawDefaultTemplate.backTexts || {})
+    },
     fields: Object.keys(DEFAULT_TEMPLATE.fields).reduce((acc, key) => ({
       ...acc,
       [key]: {
